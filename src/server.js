@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Readable } from "node:stream";
-import { db, makeSlug } from "./db.js";
+import { db, makeSlug, cardToken } from "./db.js";
 import * as views from "./views.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -262,6 +262,95 @@ app.get("/app/venues/:id/qr", requireAuth, (req, res) => {
     .catch(() => {
       res.status(502).send("Gagal generate QR, coba lagi.");
     });
+});
+
+// ---------- kartu fisik (blank QR/NFC → aktivasi → Google review) ----------
+function getCard(token) {
+  return db.prepare("SELECT * FROM cards WHERE token = ?").get(token);
+}
+function cardUrl(token) {
+  return `${BASE_URL}/c/${token}`;
+}
+function googleReviewUrlFor(placeId) {
+  return `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}`;
+}
+
+// Kartu publik: blank → halaman aktivasi; aktif → langsung Google review
+app.get("/c/:token", (req, res) => {
+  const c = getCard(req.params.token);
+  if (!c) return res.status(404).send("Kartu tidak dikenal. Periksa kembali kode kartu.");
+  if (c.status === "blank") return res.redirect(`/a/${c.token}`);
+  return res.redirect(googleReviewUrlFor(c.place_id));
+});
+
+// Halaman aktivasi (publik) — modal cari nama tempat via Google Places
+app.get("/a/:token", (req, res) => {
+  const c = getCard(req.params.token);
+  if (!c) return res.status(404).send("Kartu tidak dikenal.");
+  if (c.status === "activated") return res.redirect(googleReviewUrlFor(c.place_id));
+  res.send(views.activateCard(c, BASE_URL, !!process.env.GOOGLE_PLACES_API_KEY));
+});
+
+app.post("/a/:token", (req, res) => {
+  const c = getCard(req.params.token);
+  if (!c) return res.status(404).send("Kartu tidak dikenal.");
+  if (c.status === "activated") return res.redirect(googleReviewUrlFor(c.place_id));
+  const placeId = (req.body?.place_id || "").toString().trim();
+  const placeName = (req.body?.place_name || "").toString().trim();
+  if (!placeId || !placeName) return res.status(400).send("Pilih tempat dari daftar Google dulu.");
+  db.prepare("UPDATE cards SET status='activated', place_id=?, place_name=?, activated_at=datetime('now') WHERE id=?")
+    .run(placeId, placeName, c.id);
+  res.redirect(`/c/${c.token}`);
+});
+
+// Proxy autocomplete Google Places (jaga API key di server)
+app.get("/api/places", (req, res) => {
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+  if (!key) return res.status(501).json({ error: "GOOGLE_PLACES_API_KEY belum di-set" });
+  const q = (req.query.q || "").toString().trim();
+  if (q.length < 3) return res.json({ predictions: [] });
+  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(q)}&components=country:id&types=establishment&key=${encodeURIComponent(key)}`;
+  fetch(url)
+    .then((r) => r.json())
+    .then((d) => {
+      const pred = (d.predictions || []).map((p) => ({ place_id: p.place_id, desc: p.description }));
+      res.json({ predictions: pred });
+    })
+    .catch(() => res.status(502).json({ error: "Google Places gagal" }));
+});
+
+// ---------- admin kartu ----------
+app.get("/app/cards", requireAuth, (req, res) => {
+  const cards = db.prepare("SELECT * FROM cards ORDER BY id DESC").all();
+  res.send(views.cardsAdmin(cards, BASE_URL, qrImageUrl));
+});
+
+app.post("/app/cards/generate", requireAuth, (req, res) => {
+  const count = Math.min(Math.max(parseInt(req.body?.count, 10) || 10, 1), 200);
+  const ins = db.prepare("INSERT INTO cards (token) VALUES (?)");
+  for (let i = 0; i < count; i++) ins.run(cardToken());
+  res.redirect("/app/cards");
+});
+
+app.post("/app/cards/:id/reset", requireAuth, (req, res) => {
+  const c = db.prepare("SELECT * FROM cards WHERE id = ?").get(req.params.id);
+  if (!c) return res.status(404).send("Kartu tidak ditemukan");
+  db.prepare("UPDATE cards SET status='blank', place_id=NULL, place_name=NULL, activated_at=NULL WHERE id=?").run(c.id);
+  res.redirect("/app/cards");
+});
+
+// Cetak kartu kosong (batch, 4 per A4) — filter ?ids= atau semua blank
+app.get("/app/cards/print", requireAuth, (req, res) => {
+  let cards;
+  const ids = (req.query.ids || "").toString();
+  if (ids) {
+    const list = ids.split(",").map(Number).filter(Boolean);
+    cards = db.prepare(`SELECT * FROM cards WHERE id IN (${list.map(() => "?").join(",")})`).all(...list);
+  } else {
+    cards = db.prepare("SELECT * FROM cards WHERE status='blank' ORDER BY id DESC LIMIT 16").all();
+  }
+  if (!cards.length) return res.status(404).send("Tidak ada kartu untuk dicetak.");
+  res.send(views.printBlankCards(cards, BASE_URL, qrImageUrl));
 });
 
 app.get("/privacy", (req, res) => {

@@ -1,6 +1,7 @@
 // src/db.js — SQLite layer pakai node:sqlite bawaan (tanpa dependency native)
 // Migrasi: CREATE TABLE IF NOT EXISTS idempotent.
 import { DatabaseSync } from "node:sqlite";
+import { randomBytes } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +38,18 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_ratings_venue ON ratings(venue_id, created_at);
   CREATE INDEX IF NOT EXISTS idx_ratings_fp   ON ratings(fp_hash, created_at);
+
+  -- Kartu fisik (kosong): QR/NFC berisi token unik → aktivasi → bind ke tempat Google
+  CREATE TABLE IF NOT EXISTS cards (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    token        TEXT    NOT NULL UNIQUE,
+    status       TEXT    NOT NULL DEFAULT 'blank',   -- blank | activated
+    place_id     TEXT,
+    place_name   TEXT,
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+    activated_at TEXT
+  );
+  CREATE INDEX IF NOT EXISTS idx_cards_status ON cards(status);
 `);
 
 export function now() {
@@ -68,6 +81,19 @@ export function seedDemo() {
   ins.run("kedai-kopi-senja", "Kedai Kopi Senja", "ChIJv73t_LdOaS4Rs5p0Qx-9Z08", "6281234567890", "free");
   ins.run("barber-kita", "Barber Kita", "ChIJg8y6rPZNaS4RlZ2h1cDmX3Y", "6289876543210", "pro");
   console.log("  seed: 2 venue demo dibuat");
+}
+
+// token unik kartu (16 char hex) — juga dipakai routes
+export function cardToken() {
+  return randomBytes(8).toString("hex");
+}
+
+export function seedCards(n = 8) {
+  const count = db.prepare("SELECT COUNT(*) AS c FROM cards").get().c;
+  if (count > 0) return;
+  const ins = db.prepare("INSERT INTO cards (token) VALUES (?)");
+  for (let i = 0; i < n; i++) ins.run(cardToken());
+  console.log(`  seed: ${n} kartu kosong dibuat`);
 }
 
 export function closeDb() {

@@ -256,11 +256,14 @@ export function dashboard({ rows, total, base, qrUrl, googleUrl }) {
         <h1>Papan venue</h1>
         <div class="sub">${total} rating masuk · tiap QR di bawah siap tempel di meja</div>
       </div>
-      <form class="addform" method="post" action="/app/venues">
-        <input name="name" placeholder="Nama venue baru" required>
-        <input name="place_id" placeholder="Google place ID (opsional)">
-        <button type="submit">+ Tambah</button>
-      </form>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="addform" href="/app/cards" style="display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 18px;font-weight:800;font-size:.88rem;color:var(--ink);text-decoration:none">🃏 Kartu fisik</a>
+        <form class="addform" method="post" action="/app/venues">
+          <input name="name" placeholder="Nama venue baru" required>
+          <input name="place_id" placeholder="Google place ID (opsional)">
+          <button type="submit">+ Tambah</button>
+        </form>
+      </div>
     </div>
     <div class="grid">${cards}</div>
   </main>
@@ -423,6 +426,266 @@ export function printCard(v, baseUrl, qrUrl) {
         <div class="foot">review google yang jujur · ${baseUrl.replace(/^https?:\/\//, "")}</div>
       </div>
     </div>`).join("")}
+  </div>
+</body></html>`;
+}
+
+// ---------- ACTIVATE CARD (publik) — cari tempat via Google Places ----------
+export function activateCard(card, baseUrl, hasKey) {
+  const cUrl = `${baseUrl}/c/${card.token}`;
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aktivasi Kartu — Bintangin</title>${FONT}
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:#FBF9F4;color:#1C1917;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased}
+  .card{width:100%;max-width:460px;background:#fff;border:1px solid #E9E3D8;border-radius:20px;padding:30px 26px;box-shadow:0 20px 50px -20px rgba(28,25,23,.2)}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;justify-content:center}
+  .logo .mark{width:32px;height:32px;border-radius:10px;background:#107C41;color:#fff;display:flex;align-items:center;justify-content:center}
+  .logo .mark svg{width:17px;height:17px}
+  h1{font-size:1.25rem;font-weight:800;text-align:center;margin:18px 0 6px}
+  .sub{color:#6B6359;font-size:.88rem;text-align:center;margin-bottom:20px;line-height:1.5}
+  .code-chip{display:inline-flex;align-items:center;gap:7px;background:#F4F0E8;border:1px solid #E9E3D8;border-radius:20px;padding:5px 13px;font-family:"JetBrains Mono",monospace;font-size:.72rem;color:#6B6359;margin:8px auto 18px;justify-content:center}
+  .field{margin-bottom:14px}
+  label{font-size:.78rem;font-weight:600;color:#6B6359;display:block;margin-bottom:6px}
+  .inputwrap{position:relative}
+  input{width:100%;padding:13px 14px;border:1.5px solid #E9E3D8;border-radius:12px;font-size:1rem;font-family:inherit;background:#FBF9F4}
+  input:focus{outline:3px solid #F0DFBC;border-color:#E8A33D}
+  .results{list-style:none;margin-top:8px;border:1px solid #E9E3D8;border-radius:12px;overflow:hidden;background:#fff;display:none;max-height:260px;overflow-y:auto}
+  .results.show{display:block}
+  .results li{padding:12px 14px;cursor:pointer;font-size:.9rem;border-bottom:1px solid #F4F0E8;display:flex;align-items:center;gap:9px}
+  .results li:last-child{border-bottom:0}
+  .results li:hover{background:#F4F0E8}
+  .results li .pin{color:#107C41;flex:none}
+  .results li .pin svg{width:16px;height:16px}
+  .results .empty{padding:14px;color:#A49B8E;font-size:.85rem;text-align:center}
+  button{width:100%;min-height:52px;border:0;border-radius:12px;background:#107C41;color:#fff;font-weight:800;font-size:1rem;font-family:inherit;cursor:pointer;margin-top:8px;box-shadow:0 4px 14px rgba(16,124,65,.25)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .warn{background:#FBF0DC;border:1px solid #F3DFC0;color:#8A5A00;font-size:.82rem;padding:10px 12px;border-radius:10px;margin-bottom:14px;line-height:1.5}
+  .footer{color:#A49B8E;font-size:.72rem;text-align:center;margin-top:18px}
+  .footer a{color:#107C41;text-decoration:none}
+</style></head>
+<body>
+  <div class="card">
+    <div class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin</div>
+    <h1>Aktivasi kartu</h1>
+    <p class="sub">Kartu ini belum terhubung ke tempat apa pun.<br>Carikan tempat kamu di Google, lalu aktifkan.</p>
+    <div class="code-chip">Kartu #${card.token.slice(0, 8).toUpperCase()}</div>
+    ${hasKey ? "" : `<div class="warn">Mode demo — cari tempat nggak aktif sampai GOOGLE_PLACES_API_KEY di-set di server.</div>`}
+    <form method="post" action="/a/${card.token}" id="form">
+      <div class="field">
+        <label for="q">Nama tempat / bisnis kamu</label>
+        <div class="inputwrap">
+          <input id="q" placeholder="Ketik minimal 3 huruf... cth: Kopi Senja" autocomplete="off" required>
+        </div>
+        <ul class="results" id="results"></ul>
+      </div>
+      <input type="hidden" name="place_id" id="place_id">
+      <input type="hidden" name="place_name" id="place_name">
+      <button type="submit" id="btn" disabled>Aktivasi kartu</button>
+    </form>
+    <p class="footer">Dengan aktivasi, kamu menghubungkan kartu ini ke review Google tempatmu. <a href="/privacy">Kebijakan privasi</a></p>
+  </div>
+<script>
+const q=document.getElementById('q'),results=document.getElementById('results'),
+pid=document.getElementById('place_id'),pname=document.getElementById('place_name'),btn=document.getElementById('btn');
+let deb;
+const pinSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+q.addEventListener('input',()=>{clearTimeout(deb);deb=setTimeout(async()=>{
+  const v=q.value.trim();
+  if(v.length<3){results.classList.remove('show');results.innerHTML='';return;}
+  try{
+    const r=await fetch('/api/places?q='+encodeURIComponent(v));
+    const d=await r.json();
+    if(!d.predictions||!d.predictions.length){results.innerHTML='<li class="empty">Tempat nggak ketemu. Coba kata kunci lain.</li>';results.classList.add('show');return;}
+    results.innerHTML=d.predictions.map(p=>'<li data-id="'+esc(p.place_id)+'" data-name="'+esc(p.desc)+'"><span class="pin">'+pinSvg+'</span>'+esc(p.desc)+'</li>').join('');
+    results.classList.add('show');
+    results.querySelectorAll('li[data-id]').forEach(li=>li.onclick=()=>{
+      pid.value=li.dataset.id; pname.value=li.dataset.name; q.value=li.dataset.name;
+      results.classList.remove('show'); btn.disabled=false;
+    });
+  }catch(e){results.innerHTML='<li class="empty">Gagal cari. Coba lagi.</li>';results.classList.add('show');}
+},350);});
+q.addEventListener('focus',()=>{if(results.innerHTML&&!btn.disabled)results.classList.add('show');});
+document.addEventListener('click',e=>{if(!e.target.closest('.inputwrap')&&!e.target.closest('.results'))results.classList.remove('show');});
+</script>
+</body></html>`;
+}
+
+// ---------- CARDS ADMIN (pabrik kartu) ----------
+export function cardsAdmin(cards, baseUrl, qrUrl) {
+  const blank = cards.filter((c) => c.status === "blank");
+  const active = cards.filter((c) => c.status === "activated");
+  const rows = cards.map((c) => `
+  <tr class="${c.status}">
+    <td class="mono">#${c.id}</td>
+    <td class="mono">${c.token.slice(0,10)}…</td>
+    <td><span class="st ${c.status}">${c.status === "blank" ? "kosong" : "aktif"}</span></td>
+    <td>${c.place_name || "—"}</td>
+    <td class="mono small">${c.activated_at ? c.activated_at.slice(0, 10) : "—"}</td>
+    <td class="actions">
+      ${c.status === "blank"
+        ? `<a class="mini" target="_blank" rel="noopener" href="${baseUrl}/c/${c.token}">buka →</a>
+           <a class="mini" target="_blank" rel="noopener" href="${baseUrl}/a/${c.token}">aktivasi</a>`
+        : `<a class="mini" target="_blank" rel="noopener" href="${baseUrl}/c/${c.token}">review →</a>`}
+      <form method="post" action="/app/cards/${c.id}/reset" style="display:inline" onsubmit="return confirm('Reset kartu ke kosong?')">
+        <button class="mini danger" type="submit">reset</button>
+      </form>
+    </td>
+  </tr>`).join("");
+
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kartu — Bintangin</title>${FONT}
+<style>
+  :root{--bg:#0F1512;--panel:#17211B;--panel2:#1E2B23;--line:#26382D;--ink:#EDF3EE;--muted:#9DB3A5;--dim:#5F7468;--green:#3FBF4F;--amber:#E8A33D;--red:#E5484D}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .top{background:var(--panel);border-bottom:1px solid var(--line);padding:0 26px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+  .logo{font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+  .logo .mark{width:28px;height:28px;border-radius:8px;background:var(--green);color:#06210C;display:flex;align-items:center;justify-content:center}
+  .logo .mark svg{width:15px;height:15px}
+  .back{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;text-decoration:none;font-weight:600}
+  .back:hover{color:var(--ink)}
+  main{padding:26px;max-width:1080px;margin:0 auto}
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .head h1{font-size:1.35rem;font-weight:800}
+  .head .sub{color:var(--muted);font-size:.88rem;margin-top:4px}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{font-family:"JetBrains Mono",monospace;font-size:.72rem;padding:6px 13px;border-radius:20px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+  .pill b{color:var(--ink)}
+  .pill.blank b{color:var(--amber)}
+  .pill.active b{color:var(--green)}
+  .actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  .tablewrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
+  th{font-family:"JetBrains Mono",monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:10px;padding:11px 18px;font-weight:800;font-family:inherit;font-size:.88rem;cursor:pointer;text-decoration:none}
+  .btn.green{background:var(--green);color:#06210C}
+  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
+  .btn:hover{filter:brightness(1.08)}
+  .count-input{width:70px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font-family:inherit;font-size:.9rem}
+  table{width:100%;border-collapse:collapse;font-size:.84rem}
+  td{padding:10px 12px;border-bottom:1px solid rgba(38,56,45,.5);color:var(--muted)}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .small{font-size:.68rem}
+  .st{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;font-family:"JetBrains Mono",monospace}
+  .st.blank{background:rgba(232,163,61,.12);color:var(--amber);border:1px solid rgba(232,163,61,.3)}
+  .st.activated{background:rgba(63,191,79,.12);color:var(--green);border:1px solid rgba(63,191,79,.3)}
+  .actions{white-space:nowrap}
+  .mini{display:inline-block;color:#7EC8FF;text-decoration:none;font-size:.78rem;margin-right:8px}
+  .mini.danger{color:var(--red);background:transparent;border:0;cursor:pointer;font-family:inherit;font-size:.78rem;padding:0}
+  .mini:hover{text-decoration:underline}
+  tr:hover td{background:rgba(255,255,255,.015)}
+  @media(max-width:720px){th:nth-child(4),td:nth-child(4){display:none}main{padding:18px 14px}}
+</style></head>
+<body>
+  <div class="top">
+    <div class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin</div>
+    <a class="back" href="/app">← Dashboard</a>
+  </div>
+  <main>
+    <div class="head">
+      <div>
+        <h1>Kartu fisik</h1>
+        <div class="sub">Generate kartu kosong → cetak → taruh QR/NFC → aktivasi pas customer beli.</div>
+      </div>
+    </div>
+    <div class="summary">
+      <span class="pill">total <b>${cards.length}</b></span>
+      <span class="pill blank">kosong <b>${blank.length}</b></span>
+      <span class="pill active">aktif <b>${active.length}</b></span>
+    </div>
+    <div class="actions-row">
+      <form method="post" action="/app/cards/generate" style="display:flex;gap:8px;align-items:center">
+        <input class="count-input" type="number" name="count" value="10" min="1" max="200" aria-label="Jumlah kartu">
+        <button class="btn green" type="submit">+ Generate kartu</button>
+      </form>
+      <a class="btn ghost" href="/app/cards/print">🖨️ Cetak kartu kosong</a>
+    </div>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th>#</th><th>Token</th><th>Status</th><th>Tempat</th><th>Aktif</th><th>Aksi</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>
+  </main>
+</body></html>`;
+}
+
+// ---------- PRINT BLANK CARDS (batch 4x per A4) ----------
+export function printBlankCards(cards, baseUrl, qrUrl) {
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cetak Kartu Kosong — Bintangin</title>${FONT}
+<style>
+  @page { size: A4; margin: 8mm; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:#E4DFD5;color:#1C1917}
+  .toolbar{max-width:196mm;margin:0 auto;padding:14px 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .toolbar .t{font-weight:800;margin-right:auto}
+  .toolbar .t small{display:block;font-weight:500;color:#6B6359;font-size:.78rem}
+  .tbtn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:11px;padding:11px 18px;font-weight:800;font-family:inherit;font-size:.9rem;cursor:pointer;text-decoration:none}
+  .tbtn.print{background:#107C41;color:#fff}
+  .tbtn.ghost{background:#fff;border:1px solid #D8D0C2;color:#1C1917}
+  .sheet{width:196mm;margin:0 auto;background:#fff;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.12);padding:7mm 6mm;display:grid;grid-template-columns:repeat(2,91mm);justify-content:space-between;row-gap:7mm}
+  .card-wrap{position:relative}
+  .card{position:relative;width:91mm;height:134mm;background:#FFFDF8;border:0.4mm solid #E5DED2;border-radius:3mm;overflow:hidden;display:flex;flex-direction:column;align-items:center;padding:8mm 5mm 5mm;text-align:center}
+  .card::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 65% at 100% 0%, #E3F1E8 0%, transparent 58%),radial-gradient(110% 55% at 0% 100%, #FBF0DC 0%, transparent 60%)}
+  .card>*{position:relative}
+  .brand{display:flex;align-items:center;gap:1.8mm;font-weight:800;font-size:3.8mm;letter-spacing:.5mm;color:#107C41;text-transform:uppercase}
+  .brand .mark{width:6.4mm;height:6.4mm;border-radius:1.8mm;background:#107C41;color:#fff;display:flex;align-items:center;justify-content:center}
+  .brand .mark svg{width:3.6mm;height:3.6mm}
+  .stamp{position:absolute;top:7.5mm;right:0;background:#E8A33D;color:#fff;font-weight:800;font-size:2.7mm;letter-spacing:.7mm;padding:1.7mm 6mm 1.7mm 3.5mm;border-radius:0 0 0 2mm}
+  .qr{position:relative;width:47mm;height:47mm;background:#fff;border-radius:2.5mm;padding:1.6mm;margin-top:4.5mm;box-shadow:0 1.2mm 3.5mm rgba(28,25,23,.10)}
+  .qr img{width:100%;height:100%;display:block;border-radius:1mm}
+  .qr i{position:absolute;width:4.2mm;height:4.2mm;border:.55mm solid #107C41}
+  .qr i.nw{top:2.4mm;left:2.4mm;border-right:0;border-bottom:0}
+  .qr i.ne{top:2.4mm;right:2.4mm;border-left:0;border-bottom:0}
+  .qr i.sw{bottom:2.4mm;left:2.4mm;border-right:0;border-top:0}
+  .qr i.se{bottom:2.4mm;right:2.4mm;border-left:0;border-top:0}
+  .stars{display:flex;gap:1.4mm;color:#E8A33D;margin-top:3.2mm}
+  .star-svg{width:3.6mm;height:3.6mm;display:block}
+  .title{font-weight:800;font-size:5.6mm;margin-top:2mm;letter-spacing:-.1mm}
+  .subtitle{color:#6B6359;font-size:3mm;margin-top:1.6mm}
+  .cta{margin-top:auto;background:#107C41;color:#fff;font-weight:800;font-size:4.2mm;padding:2.8mm 9mm;border-radius:10mm;display:inline-flex;align-items:center;gap:1.8mm}
+  .cta svg{width:4mm;height:4mm}
+  .foot{margin-top:2.6mm;color:#A49B8E;font-size:2.3mm;letter-spacing:.25mm;text-transform:uppercase;font-weight:600}
+  .code{font-family:"JetBrains Mono",monospace;font-size:2.6mm;color:#6B6359;margin-top:1.8mm;letter-spacing:.4mm}
+  @media print{body{background:#fff}.toolbar{display:none!important}.sheet{box-shadow:none;border-radius:0;padding:0;margin:0}.card-wrap{break-inside:avoid}}
+  @media (max-width:760px){.sheet{transform:scale(.42);transform-origin:top left;width:196mm}.toolbar{max-width:100%;padding:10px 14px}}
+</style></head>
+<body>
+  <div class="toolbar">
+    <div class="t">Kartu Kosong <small>${cards.length} kartu · siap QR/NFC · 4 per lembar A4</small></div>
+    <a class="tbtn ghost" href="/app/cards">← Kembali</a>
+    <button class="tbtn print" onclick="window.print()">🖨️ Print</button>
+  </div>
+  <div class="sheet">
+    ${cards.map((c) => {
+      const url = `${baseUrl}/c/${c.token}`;
+      const qr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(url)}`;
+      return `<div class="card-wrap">
+        <div class="card">
+          <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin <span style="font-weight:600;font-size:2.4mm;color:#A49B8E;letter-spacing:.2mm">· aktivasi kartu</span></div>
+          <span class="stamp">SCAN ME</span>
+          <div class="qr"><img src="${qr}" alt=""><i class="nw"></i><i class="ne"></i><i class="sw"></i><i class="se"></i></div>
+          <div class="stars">
+            <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+            <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+            <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+            <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+            <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+          </div>
+          <div class="title">Kartu belum aktif</div>
+          <div class="subtitle">Scan buat aktivasi ke tempat kamu</div>
+          <div class="cta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg> Bintangin, yuk</div>
+          <div class="code">#${c.token.toUpperCase()}</div>
+          <div class="foot">review google yang jujur</div>
+        </div>
+      </div>`;
+    }).join("")}
   </div>
 </body></html>`;
 }
