@@ -60,7 +60,7 @@
 
   /* mockup QR card */
   .scene{position:relative;display:flex;justify-content:center;perspective:900px}
-  .card-stand{position:relative;width:240px;aspect-ratio:6/9.4;background:#fff;border-radius:14px;box-shadow:0 24px 60px -18px rgba(28,25,23,.35),0 4px 14px rgba(28,25,23,.08);transform:rotateY(-9deg) rotateX(4deg);padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line)}
+  .card-stand{position:relative;width:240px;max-width:100%;aspect-ratio:6/9.4;background:#fff;border-radius:14px;box-shadow:0 24px 60px -18px rgba(28,25,23,.35),0 4px 14px rgba(28,25,23,.08);transform:rotateY(-9deg) rotateX(4deg);padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line)}
   .card-stand .vname{font-weight:800;font-size:1.02rem;letter-spacing:-.01em;margin-top:10px}
   .card-stand .vcat{font-size:.72rem;color:var(--muted);margin-top:2px}
   .qr-badge{width:132px;height:132px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-top:14px;overflow:hidden}
@@ -142,6 +142,13 @@
     .steps{grid-template-columns:1fr}
     .prices{grid-template-columns:1fr}
     nav a:not(.btn-login){display:none}
+  }
+  /* Fix mobile: elemen melayang (absolute) menutupi kartu & teks — buang di layar kecil */
+  @media (max-width:640px){
+    .float-note,.float-note2,.shadow-ellipse{display:none}
+    .card-stand{transform:none;width:220px;margin:0 auto}
+    .hero{gap:36px}
+    .scene{perspective:none}
   }
 </style>
 </head>
