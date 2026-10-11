@@ -71,6 +71,11 @@
   .arrow svg{width:20px;height:20px}
   @media(max-width:860px){.arrow{display:none}}
   .legal-band{background:var(--green-soft);border:1px solid #CBE3D4;border-radius:16px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start}
+  .ref-band{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start;max-width:860px;margin:22px auto 0}
+  .ref-band .mark{width:42px;height:42px;border-radius:12px;background:var(--green-soft);color:var(--green);display:flex;align-items:center;justify-content:center;flex:none}
+  .ref-band .mark svg{width:22px;height:22px}
+  .ref-band h3{font-size:.98rem;font-weight:800;margin-bottom:4px}
+  .ref-band p{color:var(--muted);font-size:.88rem;max-width:70ch}
   .legal-band .mark{width:42px;height:42px;border-radius:12px;background:#fff;color:var(--green);display:flex;align-items:center;justify-content:center;flex:none}
   .legal-band .mark svg{width:22px;height:22px}
   .legal-band h3{font-size:.98rem;font-weight:800;margin-bottom:4px}
@@ -210,26 +215,34 @@
         <div class="plan">
           <div class="plan-name">Gratis</div>
           <div class="plan-price"><span class="cur">Rp</span>0</div>
-          <div class="plan-desc">Buat nyobain sambil jalan.</div>
+          <div class="plan-desc">Buat nyobain — cetak kartu sendiri.</div>
           <ul>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kartu <b>QR only</b></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aktivasi unlimited</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Dashboard &amp; cetak 4/A4</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> <b>1× aktivasi</b> selamanya</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Cetak sendiri 4/A4</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Dashboard gratis</li>
           </ul>
-          <a class="btn btn-primary" href="/app">Mulai gratis</a>
+          <a class="btn btn-primary" href="/app/daftar">Daftar gratis</a>
         </div>
         <div class="plan hot">
           <div class="plan-tag">PALING BANYAK DIPILIH</div>
           <div class="plan-name">Juragan</div>
           <div class="plan-price"><span class="cur">Rp</span>50<span class="thousand">.000</span><span class="unit">/toko</span></div>
-          <div class="plan-desc">Buat yang serius ngumpulin review.</div>
+          <div class="plan-desc">Kartu fisik NFC + QR dikirim ke kamu (+ 1 aktivasi).</div>
           <ul>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kartu <b>NFC + QR</b></li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aktivasi unlimited</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Harga kartu fisik sudah termasuk</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kartu <b>NFC + QR</b> dikirim</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Termasuk <b>1× aktivasi</b></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Top up lanjutan <b>Rp20rb / aktivasi</b></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Prioritas ongkir &amp; stok</li>
           </ul>
-          <a class="btn btn-primary" href="/app">Pilih Juragan</a>
+          <a class="btn btn-primary" href="/app/daftar">Ambil paket Juragan</a>
+        </div>
+      </div>
+      <div class="ref-band">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="m21 3-6.5 6.5"/><path d="M3 21l6.5-6.5"/><path d="M14 10h4v4"/><path d="M6 14h4v4"/></svg></div>
+        <div>
+          <h3>Program referal — undang, sama-sama cuan.</h3>
+          <p>Ajak teman UMKM daftar pakai kode referalmu. Pas temanmu upgrade ke Juragan (Rp50rb), <b>kamu langsung dapat 1 kuota aktivasi gratis</b> (senilai Rp20rb). Tanpa ribet, langsung kepakai buat kartumu sendiri.</p>
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 // src/migrate.js — jalankan: npm run migrate
-import { db, seedCards } from "./db.js";
+import { db, bootstrapAdmin } from "./db.js";
 
-console.log("Migrasi tabel selesai.");
-seedCards(8);
+bootstrapAdmin();
+console.log("Migrasi v3 selesai (akun + kuota + referal + orders).");
 console.log("DB siap di data/bintangin.db");
 db.close();

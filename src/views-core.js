@@ -75,8 +75,8 @@ export function privacy() {
 </body></html>`;
 }
 
-// ---------- ACTIVATE CARD (publik) — cari tempat via Google Places ----------
-export function activateCard(card, baseUrl, hasKey) {
+// ---------- ACTIVATE CARD (login pemilik) — cari tempat via Google Places / link Maps ----------
+export function activateCard(card, acc, baseUrl, hasKey) {
   return `<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aktivasi Kartu — Bintangin</title>${FONT}
@@ -89,6 +89,8 @@ export function activateCard(card, baseUrl, hasKey) {
   .logo .mark svg{width:17px;height:17px}
   h1{font-size:1.25rem;font-weight:800;text-align:center;margin:18px 0 6px}
   .sub{color:#6B6359;font-size:.88rem;text-align:center;margin-bottom:20px;line-height:1.5}
+  .who-chip{display:flex;align-items:center;justify-content:center;gap:7px;background:#E3F1E8;border:1px solid #CBE3D4;color:#0B5C30;border-radius:20px;padding:6px 14px;font-size:.78rem;font-weight:700;margin:0 auto 18px;width:fit-content}
+  .quota{display:flex;align-items:center;justify-content:center;gap:7px;background:#FBF0DC;border:1px solid #F3DFC0;color:#8A5A00;border-radius:20px;padding:6px 14px;font-size:.78rem;font-weight:700;margin:0 auto 18px;width:fit-content}
   .code-chip{display:flex;align-items:center;gap:7px;background:#F4F0E8;border:1px solid #E9E3D8;border-radius:20px;padding:5px 13px;font-family:"JetBrains Mono",monospace;font-size:.72rem;color:#6B6359;margin:8px auto 18px;justify-content:center;width:fit-content}
   .field{margin-bottom:14px}
   label{font-size:.78rem;font-weight:600;color:#6B6359;display:block;margin-bottom:6px}
@@ -106,12 +108,12 @@ export function activateCard(card, baseUrl, hasKey) {
   button{width:100%;min-height:52px;border:0;border-radius:12px;background:#107C41;color:#fff;font-weight:800;font-size:1rem;font-family:inherit;cursor:pointer;margin-top:8px;box-shadow:0 4px 14px rgba(16,124,65,.25)}
   button:disabled{opacity:.45;cursor:not-allowed}
   .warn{background:#FBF0DC;border:1px solid #F3DFC0;color:#8A5A00;font-size:.82rem;padding:10px 12px;border-radius:10px;margin-bottom:14px;line-height:1.5}
-  .tabs{display:flex;gap:6px;background:var(--surface2);border-radius:11px;padding:4px;margin-bottom:14px}
-  .tab{flex:1;min-height:38px;border:0;border-radius:8px;background:transparent;font-family:inherit;font-weight:700;font-size:.85rem;color:var(--muted);cursor:pointer}
-  .tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,25,23,.12)}
+  .tabs{display:flex;gap:6px;background:#F4F0E8;border-radius:11px;padding:4px;margin-bottom:14px}
+  .tab{flex:1;min-height:38px;border:0;border-radius:8px;background:transparent;font-family:inherit;font-weight:700;font-size:.85rem;color:#6B6359;cursor:pointer}
+  .tab.active{background:#fff;color:#1C1917;box-shadow:0 1px 3px rgba(28,25,23,.12)}
   .pane.hidden{display:none}
-  .hint2{color:var(--dim);font-size:.74rem;margin-top:8px;line-height:1.5}
-  .hint2 b{color:var(--muted)}
+  .hint2{color:#A49B8E;font-size:.74rem;margin-top:8px;line-height:1.5}
+  .hint2 b{color:#6B6359}
   .footer{color:#A49B8E;font-size:.72rem;text-align:center;margin-top:18px}
   .footer a{color:#107C41;text-decoration:none}
 </style></head>
@@ -119,8 +121,12 @@ export function activateCard(card, baseUrl, hasKey) {
   <div class="card">
     <div class="logo"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin</div>
     <h1>Aktivasi kartu</h1>
-    <p class="sub">Kartu ini belum terhubung ke tempat mana pun.<br>Carikan tempat kamu di Google, lalu aktifkan.</p>
+    <p class="sub">Hubungkan kartu ini ke review Google tempatmu.</p>
+    <div class="who-chip">Akun: ${acc.name} (@${acc.username})</div>
     <div class="code-chip">Kartu #${card.token.slice(0, 8).toUpperCase()}</div>
+    ${acc.quota > 0
+      ? `<div class="quota">⚡ Sisa kuota aktivasi: <b>${acc.quota}</b></div>`
+      : `<div class="quota">⚠️ Kuota aktivasi habis. Top up 20rb di dashboard dulu.</div>`}
     ${hasKey ? "" : `<div class="warn">Mode demo — tombol "pilih tempat" butuh GOOGLE_PLACES_API_KEY. Pakai mode "tempel link Maps" di bawah, tanpa API & tanpa saldo. Ini cara ambil link-nya: buka tempatmu di Google Maps → Share → Copy link, contoh: https://maps.app.goo.gl/xxxx</div>`}
     <form method="post" action="/a/${card.token}" id="form">
       <div class="tabs">
