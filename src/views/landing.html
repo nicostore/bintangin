@@ -3,94 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bintangin — Review Google Maps naik, dari meja kamu</title>
-<meta name="description" content="QR meja yang mengubah pelanggan puas jadi review Google asli dalam 30 detik. Legal, halal, tanpa ribet. Buat UMKM Indonesia.">
+<title>Bintangin — Kartu QR/NFC Review Google Maps untuk UMKM</title>
+<meta name="description" content="Kartu fisik QR + NFC yang mengubah pelanggan jadi review Google asli. Scan, aktivasi sekali, langsung ke review tempatmu. Legal & halal.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#FBF9F4; --surface:#FFFFFF; --surface2:#F4F0E8;
-    --ink:#1C1917; --muted:#6B6359; --dim:#A49B8E;
-    --green:#107C41; --green-strong:#0B5C30; --green-soft:#E3F1E8;
-    --amber:#E8A33D; --amber-soft:#FBF0DC;
-    --line:#E9E3D8;
-    --font-display:"Plus Jakarta Sans",system-ui,sans-serif;
-    --font-mono:"JetBrains Mono",ui-monospace,monospace;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--ink);font-family:var(--font-display);line-height:1.6;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
-  a{color:inherit}
-  ::selection{background:var(--green);color:#fff}
-  svg{display:block}
-
-  /* header */
-  header{position:sticky;top:0;z-index:50;background:rgba(251,249,244,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  :root{--bg:#FBF9F4;--surface:#fff;--surface2:#F4F0E8;--ink:#1C1917;--muted:#6B6359;--dim:#A49B8E;
+    --green:#107C41;--green-strong:#0B5C30;--green-soft:#E3F1E8;--amber:#E8A33D;--amber-soft:#FBF0DC;--line:#E9E3D8;
+    --font:"Plus Jakarta Sans",system-ui,sans-serif;--mono:"JetBrains Mono",monospace}
+  *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}svg{display:block}
+  header{position:sticky;top:0;z-index:50;background:rgba(251,249,244,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   .bar{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.15rem;letter-spacing:-.01em;text-decoration:none}
-  .logo .mark{width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(16,124,65,.28)}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;text-decoration:none;color:var(--ink)}
+  .logo .mark{width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center}
   .logo .mark svg{width:16px;height:16px}
-  nav{display:flex;gap:4px;align-items:center}
+  nav{display:flex;gap:6px;align-items:center}
   nav a{text-decoration:none;color:var(--muted);font-weight:600;font-size:.9rem;padding:8px 12px;border-radius:8px}
   nav a:hover{color:var(--ink);background:var(--surface2)}
-  nav a:focus-visible{outline:2px solid var(--green);outline-offset:2px}
   .btn-login{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
-  .btn-login:hover{background:var(--surface2);color:var(--ink)}
-
-  /* hero */
   .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;padding:72px 0 80px}
-  .eyebrow{font-family:var(--font-mono);font-size:.72rem;color:var(--green);text-transform:uppercase;letter-spacing:.16em;font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;color:var(--green);text-transform:uppercase;letter-spacing:.16em;font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px}
   .eyebrow::before{content:"";width:22px;height:1.5px;background:var(--green)}
-  .hero h1{font-size:clamp(2.3rem,5.2vw,3.6rem);line-height:1.04;letter-spacing:-.03em;font-weight:800}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.05;letter-spacing:-.03em;font-weight:800}
   .hero h1 em{color:var(--green);font-style:normal}
-  .hero .lede{margin:20px 0 30px;color:var(--muted);max-width:46ch;font-size:1.08rem}
+  .lede{margin:20px 0 30px;color:var(--muted);max-width:48ch;font-size:1.05rem}
   .cta-row{display:flex;gap:12px;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;font-weight:700;font-size:.98rem;border-radius:12px;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:transform .12s ease,box-shadow .12s ease}
-  .btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;font-weight:700;font-size:.98rem;border-radius:12px;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:transform .12s}
   .btn-primary{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(16,124,65,.28)}
   .btn-primary:hover{background:var(--green-strong);transform:translateY(-1px)}
   .btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
   .btn-ghost:hover{background:var(--surface2)}
-  .btn:active{transform:translateY(1px)}
   .trust{display:flex;gap:16px;margin-top:26px;color:var(--muted);font-size:.82rem;font-weight:600;flex-wrap:wrap}
-  .trust span{display:inline-flex;align-items:center;gap:7px}
-  .trust .dot{width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block}
-
-  /* mockup QR card */
+  .trust .dot{width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
   .scene{position:relative;display:flex;justify-content:center;perspective:900px}
-  .card-stand{position:relative;width:240px;max-width:100%;aspect-ratio:6/9.4;background:#fff;border-radius:14px;box-shadow:0 24px 60px -18px rgba(28,25,23,.35),0 4px 14px rgba(28,25,23,.08);transform:rotateY(-9deg) rotateX(4deg);padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line)}
-  .card-stand .vname{font-weight:800;font-size:1.02rem;letter-spacing:-.01em;margin-top:10px}
-  .card-stand .vcat{font-size:.72rem;color:var(--muted);margin-top:2px}
-  .qr-badge{width:132px;height:132px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-top:14px;overflow:hidden}
+  .card-stand{position:relative;width:230px;aspect-ratio:6/9.4;background:#fff;border-radius:14px;box-shadow:0 24px 60px -18px rgba(28,25,23,.35);transform:rotateY(-9deg) rotateX(4deg);padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line)}
+  .card-stand .mark2{width:34px;height:34px;border-radius:9px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center}
+  .card-stand .mark2 svg{width:18px;height:18px}
+  .brand-txt{font-weight:800;color:var(--green);font-size:.85rem;letter-spacing:.1em;margin-top:6px;text-transform:uppercase}
+  .qr-badge{width:120px;height:120px;border-radius:9px;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-top:12px;overflow:hidden}
   .qr-badge img{width:100%;height:100%;object-fit:cover}
-  .cta-line{margin-top:auto;font-weight:800;color:var(--green);font-size:.86rem;display:flex;align-items:center;gap:6px;justify-content:center}
-  .cta-line svg{width:15px;height:15px}
-  .stars-mini{display:flex;gap:3px;margin-top:6px;color:var(--amber)}
-  .stars-mini svg{width:15px;height:15px}
-  .card-stand .stamp{position:absolute;top:-10px;right:-10px;background:var(--amber);color:#fff;font-size:.6rem;font-weight:800;padding:5px 10px;border-radius:20px;box-shadow:0 3px 8px rgba(232,163,61,.4);letter-spacing:.04em}
-  .shadow-ellipse{position:absolute;bottom:-22px;width:200px;height:26px;background:rgba(28,25,23,.14);border-radius:50%;filter:blur(6px)}
-  .float-note{position:absolute;top:12%;right:2%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px -10px rgba(28,25,23,.25);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;animation:float 5s ease-in-out infinite}
-  .float-note svg{width:15px;height:15px;color:var(--green)}
-  .float-note b{color:var(--green)}
-  .float-note2{position:absolute;bottom:16%;left:-2%;background:var(--amber-soft);border:1px solid #F3DFC0;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px -10px rgba(28,25,23,.2);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;animation:float 6s ease-in-out 1s infinite}
-  .float-note2 svg{width:15px;height:15px;color:var(--amber)}
+  .stamp{position:absolute;top:-9px;right:-9px;background:var(--amber);color:#fff;font-size:.55rem;font-weight:800;padding:4px 9px;border-radius:20px;letter-spacing:.05em;box-shadow:0 3px 8px rgba(232,163,61,.4)}
+  .card-stand .hint-cta{margin-top:auto;font-weight:800;color:var(--green);font-size:.85rem}
+  .card-stand .mini-stars{color:var(--amber);font-size:.7rem;letter-spacing:.15em;margin-top:4px}
+  .float-note{position:absolute;top:8%;right:-6%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 13px;box-shadow:0 10px 30px -10px rgba(28,25,23,.25);font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:7px;animation:float 5s ease-in-out infinite}
+  .float-note svg{width:14px;height:14px;color:var(--green)}
+  .float-note2{position:absolute;bottom:14%;left:-8%;background:var(--amber-soft);border:1px solid #F3DFC0;border-radius:12px;padding:9px 13px;box-shadow:0 10px 30px -10px rgba(28,25,23,.2);font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:7px;animation:float 6s ease-in-out 1s infinite}
+  .float-note2 svg{width:14px;height:14px;color:var(--amber)}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  @media (prefers-reduced-motion:reduce){.float-note,.float-note2{animation:none}}
-
-  /* sections */
+  @media(max-width:760px){.float-note,.float-note2{display:none}.card-stand{transform:none;width:210px;margin:0 auto}.scene{perspective:none}}
   section{padding:64px 0}
+  .divider{border:0;border-top:1px solid var(--line)}
   .sec-head{max-width:600px;margin-bottom:40px}
-  .sec-head .kicker{font-family:var(--font-mono);font-size:.72rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px}
+  .sec-head .kicker{font-family:var(--mono);font-size:.72rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px}
   .sec-head h2{font-size:clamp(1.6rem,3.4vw,2.3rem);letter-spacing:-.02em;font-weight:800;line-height:1.15}
   .sec-head p{color:var(--muted);margin-top:10px}
-  .divider{border:0;border-top:1px solid var(--line)}
-
-  /* steps */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
   .step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 22px;position:relative}
-  .step .num{font-family:var(--font-mono);font-size:.7rem;font-weight:600;color:var(--amber);letter-spacing:.14em}
+  .step .num{font-family:var(--mono);font-size:.7rem;font-weight:600;color:var(--amber);letter-spacing:.14em}
   .step .ic{width:44px;height:44px;border-radius:12px;background:var(--green-soft);color:var(--green);display:flex;align-items:center;justify-content:center;margin:16px 0 14px}
   .step .ic svg{width:22px;height:22px}
   .step h3{font-size:1.02rem;font-weight:700;margin-bottom:6px}
@@ -98,67 +70,29 @@
   .arrow{position:absolute;top:50%;right:-15px;transform:translateY(-50%);color:var(--dim)}
   .arrow svg{width:20px;height:20px}
   @media(max-width:860px){.arrow{display:none}}
-
-  /* trust/legal banner */
   .legal-band{background:var(--green-soft);border:1px solid #CBE3D4;border-radius:16px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start}
   .legal-band .mark{width:42px;height:42px;border-radius:12px;background:#fff;color:var(--green);display:flex;align-items:center;justify-content:center;flex:none}
   .legal-band .mark svg{width:22px;height:22px}
   .legal-band h3{font-size:.98rem;font-weight:800;margin-bottom:4px}
   .legal-band p{color:var(--muted);font-size:.88rem;max-width:70ch}
-  .legal-band .chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  .chip{font-family:var(--font-mono);font-size:.68rem;background:#fff;border:1px solid #CBE3D4;color:var(--green-strong);padding:4px 10px;border-radius:20px;font-weight:600}
-
-  /* pricing */
-  .prices{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
-  .price{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 22px;display:flex;flex-direction:column;position:relative}
-  .price.featured{border:2px solid var(--green);box-shadow:0 14px 40px -14px rgba(16,124,65,.35)}
-  .price .flag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-family:var(--font-mono);font-size:.62rem;font-weight:600;letter-spacing:.1em;padding:4px 12px;border-radius:20px;white-space:nowrap}
-  .price .pname{font-weight:800;font-size:1.05rem}
-  .price .pdesc{color:var(--muted);font-size:.82rem;margin-top:4px;min-height:2.6em}
-  .price .pharga{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:16px 0 14px}
-  .price .pharga small{font-size:.78rem;font-weight:600;color:var(--muted)}
-  .price ul{list-style:none;display:flex;flex-direction:column;gap:9px;font-size:.88rem;margin-bottom:20px}
-  .price ul li{display:flex;gap:10px;align-items:flex-start;color:#4A4238}
-  .price ul li::before{content:"✓";flex:none;width:18px;height:18px;margin-top:1px;background:var(--green-soft);border-radius:50%;color:var(--green);font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
-  .price .btn{width:100%;margin-top:auto}
-
-  /* CTA bottom */
-  .cta-band{background:var(--green);border-radius:20px;padding:44px 30px;text-align:center;color:#fff;position:relative;overflow:hidden}
+  .chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-family:var(--mono);font-size:.68rem;background:#fff;border:1px solid #CBE3D4;color:var(--green-strong);padding:4px 10px;border-radius:20px;font-weight:600}
+  .cta-band{background:var(--green);border-radius:20px;padding:44px 30px;text-align:center;color:#fff}
   .cta-band h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em}
   .cta-band p{color:rgba(255,255,255,.85);margin:10px auto 24px;max-width:46ch}
   .btn-white{background:#fff;color:var(--green);box-shadow:0 6px 18px rgba(0,0,0,.2)}
-  .btn-white:hover{transform:translateY(-1px)}
-  .cta-band .stars{display:flex;gap:6px;justify-content:center;margin-bottom:14px;color:#FFD98A}
-  .cta-band .stars svg{width:22px;height:22px}
-
   footer{border-top:1px solid var(--line);padding:34px 0 44px}
   .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.82rem}
-  .foot .links{display:flex;gap:18px}
-  .foot a{color:var(--muted);text-decoration:none}
-  .foot a:hover{color:var(--ink)}
-
-  @media (max-width:900px){
-    .hero{grid-template-columns:1fr;gap:44px;padding:52px 0 56px}
-    .steps{grid-template-columns:1fr}
-    .prices{grid-template-columns:1fr}
-    nav a:not(.btn-login){display:none}
-  }
-  /* Fix mobile: elemen melayang (absolute) menutupi kartu & teks — buang di layar kecil */
-  @media (max-width:640px){
-    .float-note,.float-note2,.shadow-ellipse{display:none}
-    .card-stand{transform:none;width:220px;margin:0 auto}
-    .hero{gap:36px}
-    .scene{perspective:none}
-  }
+  .foot .links{display:flex;gap:18px}.foot a{color:var(--muted);text-decoration:none}.foot a:hover{color:var(--ink)}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:40px;padding:52px 0 56px}.steps{grid-template-columns:1fr}nav a:not(.btn-login){display:none}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap bar">
     <a class="logo" href="/"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin</a>
-    <nav aria-label="Navigasi utama">
+    <nav>
       <a href="#cara">Cara kerja</a>
-      <a href="#harga">Harga</a>
       <a href="/app" class="btn-login">Login dashboard</a>
     </nav>
   </div>
@@ -168,46 +102,30 @@
   <div class="wrap">
     <section class="hero">
       <div>
-        <p class="eyebrow">QR meja → review Google Maps</p>
-        <h1>Review Google Maps naik, <em>tanpa nanya-nanya</em> pelanggan.</h1>
-        <p class="lede">Pelanggan puas jarang nulis review — bukan karena nggak mau, tapi nggak kepikiran. Bintangin ngingetin mereka pas masih duduk di meja kamu. Satu ketukan, 30 detik, review Google asli.</p>
+        <p class="eyebrow">Kartu fisik QR + NFC → review Google Maps</p>
+        <h1>Review Google naik, <em>cuma dari kartu</em> di meja kamu.</h1>
+        <p class="lede">Pelanggan puas jarang nulis review — bukan nggak mau, cuma nggak kepikiran. Kartu Bintangin di meja/kasir ngajak mereka pas masih di tempat kamu. Scan sekali, langsung ke halaman review Google tempatmu.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="/app">Mulai gratis sekarang</a>
+          <a class="btn btn-primary" href="/app">Kelola kartu sekarang</a>
           <a class="btn btn-ghost" href="#cara">Lihat cara kerja</a>
         </div>
         <div class="trust">
-          <span><span class="dot"></span> Tanpa install app</span>
-          <span><span class="dot"></span> Aman buat listing Google</span>
-          <span><span class="dot"></span> Halal &amp; transparan</span>
+          <span><span class="dot"></span>QR + NFC siap pakai</span>
+          <span><span class="dot"></span>Tanpa app buat pelanggan</span>
+          <span><span class="dot"></span>Halal &amp; aman kebijakan Google</span>
         </div>
       </div>
-      <div class="scene" aria-hidden="true">
+      <div class="scene">
         <div class="card-stand">
           <span class="stamp">SCAN ME</span>
-          <div class="vname">Kedai Kopi Senja</div>
-          <div class="vcat">Kopi · Wifi · Nongkrong</div>
-          <div class="qr-badge"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{BASE_URL}}/v/kedai-kopi-senja" alt=""></div>
-          <div class="stars-mini">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-          </div>
-          <div class="cta-line">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-            Bintangin, yuk
-          </div>
+          <div class="mark2"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></div>
+          <div class="brand-txt">Bintangin</div>
+          <div class="qr-badge"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{BASE_URL}}/c/demo" alt=""></div>
+          <div class="mini-stars">★★★★★</div>
+          <div class="hint-cta">Bintangin, yuk ⭐</div>
         </div>
-        <div class="shadow-ellipse"></div>
-        <div class="float-note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          Rating kamu <b>sampai</b> ke owner
-        </div>
-        <div class="float-note2">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Tinggal satu ketukan → <b>review Google</b>
-        </div>
+        <div class="float-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Scan → pilih tempatmu → aktif</div>
+        <div class="float-note2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Setelah aktif → langsung <b>review Google</b></div>
       </div>
     </section>
   </div>
@@ -217,29 +135,29 @@
     <section id="cara">
       <div class="sec-head">
         <div class="kicker">Cara kerja</div>
-        <h2>Cuma tiga langkah.</h2>
-        <p>Dari pelanggan duduk sampai review naik — semuanya di meja, nggak perlu pegang laptop.</p>
+        <h2>Semudah itu.</h2>
+        <p>Kartu dijual kosong. Pemilik tempat yang aktivasi — sekali, selamanya terhubung ke review Google-nya.</p>
       </div>
       <div class="steps">
         <div class="step">
           <div class="num">01</div>
           <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg></div>
-          <h3>Tempel QR di meja</h3>
-          <p>Cetak dari dashboard, tempel di meja atau kasir. Sekali pasang, langsung kepake.</p>
+          <h3>Kartu QR/NFC siap tempel</h3>
+          <p>Tiap kartu punya token unik. Cetak 4 per lembar A4, tempel di meja/kasir.</p>
           <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
         </div>
         <div class="step">
           <div class="num">02</div>
-          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
-          <h3>Pelanggan kasih bintang</h3>
-          <p>Scan, pilih bintang. Nggak perlu login, nggak perlu install apa-apa.</p>
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <h3>Pemilik aktivasi sekali</h3>
+          <p>Scan → ketik nama tempat → autocomplete Google → pilih → kartu terhubung.</p>
           <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
         </div>
         <div class="step">
           <div class="num">03</div>
-          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <h3>Review Google masuk</h3>
-          <p>Mereka nulis langsung di Google Maps dari HP. Asli, jujur, tanpa imbalan.</p>
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Selamanya ke review Google</h3>
+          <p>Setiap scan berikutnya langsung buka halaman review Google tempat itu. Jujur, tanpa imbalan.</p>
         </div>
       </div>
     </section>
@@ -252,62 +170,13 @@
         <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
         <div>
           <h3>Bukan jasa "jual rating".</h3>
-          <p>Review ditulis pelanggan sendiri, setiap bintang — jelek atau bagus — bebas lanjut ke Google. Kami nggak pernah nulis review buat siapa pun, nggak nge-filter rating jelek, dan nggak kasih imbalan buat bintang lima. Persis yang diizinin kebijakan Google.</p>
+          <p>Bintangin cuma pengingat yang sopan. Review tetap ditulis pelanggan langsung di Google, tanpa imbalan — persis yang diizinkan kebijakan Google. Kartu tinggal jembatannya.</p>
           <div class="chips">
             <span class="chip">zero review palsu</span>
-            <span class="chip">no selective solicitation</span>
             <span class="chip">tanpa imbalan</span>
+            <span class="chip">tanpa data pribadi pelanggan</span>
             <span class="chip">aman UU PDP</span>
           </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <hr class="divider">
-  <div class="wrap">
-    <section id="harga">
-      <div class="sec-head">
-        <div class="kicker">Harga</div>
-        <h2>Mulai gratis. Upgrade kalau review udah laku.</h2>
-        <p>Tanpa biaya tersembunyi, bisa berhenti kapan aja. Data kamu tetap bisa dibawa pergi.</p>
-      </div>
-      <div class="prices">
-        <div class="price">
-          <div class="pname">Gratis</div>
-          <div class="pdesc">Buat coba-coba dan mulai ngumpulin rating.</div>
-          <div class="pharga">Rp 0<small> /selamanya</small></div>
-          <ul>
-            <li>1 venue</li>
-            <li>QR + halaman rating</li>
-            <li>Dashboard dasar + notifikasi</li>
-          </ul>
-          <a class="btn btn-ghost" href="/app">Mulai gratis</a>
-        </div>
-        <div class="price featured">
-          <span class="flag">PALING LAKU</span>
-          <div class="pname">Bekel</div>
-          <div class="pdesc">Buat yang serius naikin rating bulan ini.</div>
-          <div class="pharga">Rp 49rb<small> /bulan</small></div>
-          <ul>
-            <li>Semua fitur Gratis</li>
-            <li>Funnel penuh + link Google Maps</li>
-            <li>Notifikasi tanpa batas</li>
-            <li>QR tanpa watermark</li>
-          </ul>
-          <a class="btn btn-primary" href="/app">Coba 14 hari gratis</a>
-        </div>
-        <div class="price">
-          <div class="pname">Juragan</div>
-          <div class="pdesc">Buat yang punya cabang &amp; tim.</div>
-          <div class="pharga">Rp 129rb<small> /bulan</small></div>
-          <ul>
-            <li>Semua fitur Bekel</li>
-            <li>3 venue sekaligus</li>
-            <li>Laporan mingguan otomatis</li>
-            <li>Prioritas support</li>
-          </ul>
-          <a class="btn btn-ghost" href="/app">Hubungi kami</a>
         </div>
       </div>
     </section>
@@ -316,16 +185,9 @@
   <div class="wrap">
     <section>
       <div class="cta-band">
-        <div class="stars">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
-        </div>
-        <h2>Bikin review Google Maps naik bulan ini.</h2>
-        <p>Pasang QR pertama sekarang — gratis, nggak perlu kartu kredit, siap dalam 5 menit.</p>
-        <a class="btn btn-white" href="/app">Mulai sekarang</a>
+        <h2>Bikin review Google tempatmu naik bulan ini.</h2>
+        <p>Generate kartu pertama di dashboard — gratis, siap dalam 5 menit.</p>
+        <a class="btn btn-white" href="/app">Buka dashboard kartu</a>
       </div>
     </section>
   </div>
@@ -334,10 +196,7 @@
 <footer>
   <div class="wrap foot">
     <span>© 2026 Bintangin · Dibuat buat UMKM Indonesia</span>
-    <div class="links">
-      <a href="/privacy">Kebijakan Privasi</a>
-      <a href="/app">Dashboard</a>
-    </div>
+    <div class="links"><a href="/privacy">Kebijakan Privasi</a><a href="/app">Dashboard</a></div>
   </div>
 </footer>
 </body>
