@@ -104,7 +104,7 @@ app.get("/", (req, res) => {
 app.get("/c/:token", (req, res) => {
   const c = getCard(req.params.token);
   if (!c) return res.status(404).send("Kartu tidak dikenal. Periksa kembali kode kartu.");
-  if (c.status === "blank") return res.redirect(`/a/${c.token}`);
+  if (c.status === "blank") return res.redirect(`${BASE_URL}/a/${c.token}`);
   return res.redirect(googleReviewUrlFor(c.place_id));
 });
 
@@ -116,16 +116,53 @@ app.get("/a/:token", (req, res) => {
   res.send(views.activateCard(c, BASE_URL, !!process.env.GOOGLE_PLACES_API_KEY));
 });
 
+// Ekstrak place_id dari URL Google Maps tanpa API (gratis, tanpa saldo).
+// Format yang didukung:
+//   https://www.google.com/maps/place/?q=place_id:ChIJ...
+//   https://www.google.com/maps/place/<nama>/@.../data=!3m1!4b1!4m6!3m5!1s0x...:0x...!8m2!3d...
+//   https://maps.app.goo.gl/... (short link → ikuti redirect dulu)
+function extractPlaceFromUrl(raw) {
+  const u = String(raw || "").trim();
+  if (!u) return null;
+  // place_id eksplisit
+  const q = u.match(/[?&]q=place_id:([A-Za-z0-9:_\-]+)/);
+  if (q) return { place_id: q[1] };
+  // data path (!1s<place_id>)
+  const d = u.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
+  if (d) return { place_id: d[1] };
+  // ftid
+  const f = u.match(/[?&]ftid=([A-Za-z0-9:_\-]+)/);
+  if (f) return { place_id: f[1] };
+  return null;
+}
+
+function placeNameFromUrl(raw) {
+  const m = String(raw || "").match(/\/place\/([^/@?]+)/);
+  if (!m) return "";
+  return decodeURIComponent(m[1].replace(/\+/g, " ")).trim();
+}
+
 app.post("/a/:token", (req, res) => {
   const c = getCard(req.params.token);
   if (!c) return res.status(404).send("Kartu tidak dikenal.");
   if (c.status === "activated") return res.redirect(googleReviewUrlFor(c.place_id));
-  const placeId = (req.body?.place_id || "").toString().trim();
-  const placeName = (req.body?.place_name || "").toString().trim();
-  if (!placeId || !placeName) return res.status(400).send("Pilih tempat dari daftar Google dulu.");
+  const body = req.body || {};
+  // Mode 1: pilih dari autocomplete (butuh API key)
+  let placeId = (body.place_id || "").toString().trim();
+  let placeName = (body.place_name || "").toString().trim();
+  // Mode 2: tempel link Google Maps (tanpa API & tanpa saldo)
+  if (!placeId) {
+    const mapsUrl = (body.maps_url || "").toString().trim();
+    const parsed = extractPlaceFromUrl(mapsUrl);
+    if (parsed) {
+      placeId = parsed.place_id;
+      placeName = placeName || placeNameFromUrl(mapsUrl) || placeId;
+    }
+  }
+  if (!placeId) return res.status(400).send("Pilih tempat dari daftar Google atau tempel link Maps.");
   db.prepare("UPDATE cards SET status='activated', place_id=?, place_name=?, activated_at=datetime('now') WHERE id=?")
     .run(placeId, placeName, c.id);
-  res.redirect(`/c/${c.token}`);
+  res.redirect(`${BASE_URL}/c/${c.token}`);
 });
 
 // Proxy autocomplete Google Places (jaga API key di server)
@@ -184,8 +221,9 @@ app.get("/app/cards", requireAuth, (req, res) => {
 
 app.post("/app/cards/generate", requireAuth, (req, res) => {
   const count = Math.min(Math.max(parseInt(req.body?.count, 10) || 10, 1), 200);
-  const ins = db.prepare("INSERT INTO cards (token) VALUES (?)");
-  for (let i = 0; i < count; i++) ins.run(cardToken());
+  const tier = req.body?.tier === "paid" ? "paid" : "free";
+  const ins = db.prepare("INSERT INTO cards (token, tier) VALUES (?, ?)");
+  for (let i = 0; i < count; i++) ins.run(cardToken(), tier);
   res.redirect("/app/cards");
 });
 

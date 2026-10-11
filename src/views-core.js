@@ -106,6 +106,12 @@ export function activateCard(card, baseUrl, hasKey) {
   button{width:100%;min-height:52px;border:0;border-radius:12px;background:#107C41;color:#fff;font-weight:800;font-size:1rem;font-family:inherit;cursor:pointer;margin-top:8px;box-shadow:0 4px 14px rgba(16,124,65,.25)}
   button:disabled{opacity:.45;cursor:not-allowed}
   .warn{background:#FBF0DC;border:1px solid #F3DFC0;color:#8A5A00;font-size:.82rem;padding:10px 12px;border-radius:10px;margin-bottom:14px;line-height:1.5}
+  .tabs{display:flex;gap:6px;background:var(--surface2);border-radius:11px;padding:4px;margin-bottom:14px}
+  .tab{flex:1;min-height:38px;border:0;border-radius:8px;background:transparent;font-family:inherit;font-weight:700;font-size:.85rem;color:var(--muted);cursor:pointer}
+  .tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,25,23,.12)}
+  .pane.hidden{display:none}
+  .hint2{color:var(--dim);font-size:.74rem;margin-top:8px;line-height:1.5}
+  .hint2 b{color:var(--muted)}
   .footer{color:#A49B8E;font-size:.72rem;text-align:center;margin-top:18px}
   .footer a{color:#107C41;text-decoration:none}
 </style></head>
@@ -115,17 +121,34 @@ export function activateCard(card, baseUrl, hasKey) {
     <h1>Aktivasi kartu</h1>
     <p class="sub">Kartu ini belum terhubung ke tempat mana pun.<br>Carikan tempat kamu di Google, lalu aktifkan.</p>
     <div class="code-chip">Kartu #${card.token.slice(0, 8).toUpperCase()}</div>
-    ${hasKey ? "" : `<div class="warn">Mode demo — cari tempat belum aktif sampai GOOGLE_PLACES_API_KEY di-set di server.</div>`}
+    ${hasKey ? "" : `<div class="warn">Mode demo — tombol "pilih tempat" butuh GOOGLE_PLACES_API_KEY. Pakai mode "tempel link Maps" di bawah, tanpa API & tanpa saldo. Ini cara ambil link-nya: buka tempatmu di Google Maps → Share → Copy link, contoh: https://maps.app.goo.gl/xxxx</div>`}
     <form method="post" action="/a/${card.token}" id="form">
-      <div class="field">
-        <label for="q">Nama tempat / bisnis kamu</label>
-        <div class="inputwrap">
-          <input id="q" placeholder="Ketik minimal 3 huruf... cth: Kopi Senja" autocomplete="off" required>
-        </div>
-        <ul class="results" id="results"></ul>
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="pick">Cari nama tempat</button>
+        <button type="button" class="tab" data-tab="paste">Tempel link Maps</button>
       </div>
-      <input type="hidden" name="place_id" id="place_id">
-      <input type="hidden" name="place_name" id="place_name">
+      <div class="panes">
+        <div class="pane" data-pane="pick">
+          <div class="field">
+            <label for="q">Nama tempat / bisnis kamu</label>
+            <div class="inputwrap">
+              <input id="q" placeholder="Ketik minimal 3 huruf... cth: Kopi Senja" autocomplete="off" required>
+            </div>
+            <ul class="results" id="results"></ul>
+          </div>
+          <input type="hidden" name="place_id" id="place_id">
+          <input type="hidden" name="place_name" id="place_name">
+        </div>
+        <div class="pane hidden" data-pane="paste">
+          <div class="field">
+            <label for="maps_url">Link Google Maps tempat kamu</label>
+            <div class="inputwrap">
+              <input id="maps_url" name="maps_url" placeholder="https://maps.app.goo.gl/xxxx atau https://www.google.com/maps/place/..." autocomplete="off">
+            </div>
+            <p class="hint2">Buka tempatmu di Google Maps → <b>Share</b> → <b>Copy link</b>, tempel di sini. Kami pakai link ini langsung tanpa API.</p>
+          </div>
+        </div>
+      </div>
       <button type="submit" id="btn" disabled>Aktivasi kartu</button>
     </form>
     <p class="footer">Dengan aktivasi, kamu menghubungkan kartu ini ke review Google tempatmu. <a href="/privacy">Kebijakan privasi</a></p>
@@ -133,9 +156,30 @@ export function activateCard(card, baseUrl, hasKey) {
 <script>
 const q=document.getElementById('q'),results=document.getElementById('results'),
 pid=document.getElementById('place_id'),pname=document.getElementById('place_name'),btn=document.getElementById('btn');
+const mapsU=document.getElementById('maps_url');
+const pickPane=document.querySelector('[data-pane="pick"]'),pastePane=document.querySelector('[data-pane="paste"]');
 let deb;
 const pinSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function updateBtn(){
+  if(pastePane.classList.contains('hidden')){
+    btn.disabled = !(pid.value && pname.value);
+  } else {
+    btn.disabled = mapsU.value.trim().length < 10;
+  }
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  const pick = t.dataset.tab==='pick';
+  pickPane.classList.toggle('hidden',!pick);
+  pastePane.classList.toggle('hidden',pick);
+  updateBtn();
+});
+mapsU.addEventListener('input',updateBtn);
+document.getElementById('form').addEventListener('submit',e=>{
+  if(!pastePane.classList.contains('hidden')){ return; } // mode paste pakai field maps_url langsung
+  if(!pid.value||!pname.value){ e.preventDefault(); q.focus(); }
+});
 q.addEventListener('input',()=>{clearTimeout(deb);deb=setTimeout(async()=>{
   const v=q.value.trim();
   if(v.length<3){results.classList.remove('show');results.innerHTML='';return;}
@@ -147,7 +191,7 @@ q.addEventListener('input',()=>{clearTimeout(deb);deb=setTimeout(async()=>{
     results.classList.add('show');
     results.querySelectorAll('li[data-id]').forEach(li=>li.onclick=()=>{
       pid.value=li.dataset.id; pname.value=li.dataset.name; q.value=li.dataset.name;
-      results.classList.remove('show'); btn.disabled=false;
+      results.classList.remove('show'); updateBtn();
     });
   }catch(e){results.innerHTML='<li class="empty">Gagal cari. Coba lagi.</li>';results.classList.add('show');}
 },350);});

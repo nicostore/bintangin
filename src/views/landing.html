@@ -85,6 +85,22 @@
   .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.82rem}
   .foot .links{display:flex;gap:18px}.foot a{color:var(--muted);text-decoration:none}.foot a:hover{color:var(--ink)}
   @media(max-width:900px){.hero{grid-template-columns:1fr;gap:40px;padding:52px 0 56px}.steps{grid-template-columns:1fr}nav a:not(.btn-login){display:none}}
+  .plans{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;max-width:860px;margin:0 auto}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px 26px;display:flex;flex-direction:column;position:relative}
+  .plan.hot{border-color:var(--green);box-shadow:0 16px 40px -18px rgba(16,124,65,.35)}
+  .plan-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.1em;padding:4px 14px;border-radius:20px;white-space:nowrap}
+  .plan-name{font-weight:800;font-size:1.15rem}
+  .plan-price{font-size:2.1rem;font-weight:800;letter-spacing:-.03em;margin-top:10px;display:flex;align-items:baseline;gap:2px}
+  .plan-price .cur{font-size:1.1rem;color:var(--muted);font-weight:700}
+  .plan-price .thousand{color:var(--muted)}
+  .plan-price .unit{font-size:.9rem;color:var(--muted);font-weight:600;margin-left:4px}
+  .plan-desc{color:var(--muted);font-size:.88rem;margin:10px 0 18px}
+  .plan ul{list-style:none;margin-bottom:24px;display:grid;gap:11px}
+  .plan li{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;color:#4A4238}
+  .plan li svg{width:18px;height:18px;color:var(--green);flex:none;margin-top:2px}
+  .plan li b{color:var(--ink)}
+  .plan .btn{margin-top:auto;width:100%}
+  @media(max-width:760px){.plans{grid-template-columns:1fr;max-width:420px}}
 </style>
 </head>
 <body>
@@ -177,6 +193,43 @@
             <span class="chip">tanpa data pribadi pelanggan</span>
             <span class="chip">aman UU PDP</span>
           </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <hr class="divider">
+  <div class="wrap">
+    <section id="harga">
+      <div class="sec-head">
+        <div class="kicker">Harga</div>
+        <h2>Mulai gratis, naik kelas kapan aja.</h2>
+        <p>Kartu kosong, kamu yang aktivasi. Pilih yang cocok buat bisnismu.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <div class="plan-name">Gratis</div>
+          <div class="plan-price"><span class="cur">Rp</span>0</div>
+          <div class="plan-desc">Buat nyobain sambil jalan.</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kartu <b>QR only</b></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aktivasi unlimited</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Dashboard &amp; cetak 4/A4</li>
+          </ul>
+          <a class="btn btn-primary" href="/app">Mulai gratis</a>
+        </div>
+        <div class="plan hot">
+          <div class="plan-tag">PALING BANYAK DIPILIH</div>
+          <div class="plan-name">Juragan</div>
+          <div class="plan-price"><span class="cur">Rp</span>50<span class="thousand">.000</span><span class="unit">/toko</span></div>
+          <div class="plan-desc">Buat yang serius ngumpulin review.</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kartu <b>NFC + QR</b></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aktivasi unlimited</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Harga kartu fisik sudah termasuk</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Prioritas ongkir &amp; stok</li>
+          </ul>
+          <a class="btn btn-primary" href="/app">Pilih Juragan</a>
         </div>
       </div>
     </section>

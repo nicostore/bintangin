@@ -13,7 +13,7 @@ export function cardsAdmin(cards, baseUrl, qrFor) {
   const rows = cards.map((c) => `
   <tr class="${c.status}">
     <td class="mono">#${c.id}</td>
-    <td class="mono">${c.token.slice(0, 10)}…</td>
+    <td>${c.tier === "paid" ? '<span class="tier paid">NFC+QR</span>' : '<span class="tier free">QR</span>'}</td>
     <td><span class="st ${c.status}">${c.status === "blank" ? "kosong" : "aktif"}</span></td>
     <td>${c.place_name || "—"}</td>
     <td class="mono small">${c.activated_at ? c.activated_at.slice(0, 10) : "—"}</td>
@@ -67,6 +67,10 @@ export function cardsAdmin(cards, baseUrl, qrFor) {
   .st{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;font-family:"JetBrains Mono",monospace}
   .st.blank{background:rgba(232,163,61,.12);color:var(--amber);border:1px solid rgba(232,163,61,.3)}
   .st.activated{background:rgba(63,191,79,.12);color:var(--green);border:1px solid rgba(63,191,79,.3)}
+  .tier{display:inline-block;padding:3px 9px;border-radius:6px;font-size:.66rem;font-weight:800;font-family:"JetBrains Mono",monospace;letter-spacing:.03em}
+  .tier.free{background:rgba(157,179,165,.12);color:var(--muted);border:1px solid rgba(157,179,165,.3)}
+  .tier.paid{background:rgba(16,124,65,.15);color:#4CC38A;border:1px solid rgba(63,191,79,.3)}
+  .tier-select{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.88rem;font-weight:600}
   .actions{white-space:nowrap}
   .mini{display:inline-block;color:#7EC8FF;text-decoration:none;font-size:.78rem;margin-right:8px}
   .mini.danger{color:var(--red);background:transparent;border:0;cursor:pointer;font-family:inherit;font-size:.78rem;padding:0}
@@ -94,6 +98,10 @@ export function cardsAdmin(cards, baseUrl, qrFor) {
     <div class="actions-row">
       <form method="post" action="/app/cards/generate" style="display:flex;gap:8px;align-items:center">
         <input class="count-input" type="number" name="count" value="10" min="1" max="200" aria-label="Jumlah kartu">
+        <select class="tier-select" name="tier" aria-label="Tipe kartu">
+          <option value="free">QR only (gratis)</option>
+          <option value="paid">NFC + QR (50rb)</option>
+        </select>
         <button class="btn green" type="submit">+ Generate kartu</button>
       </form>
       <a class="btn ghost" href="/app/cards/print">🖨️ Cetak kartu kosong</a>
@@ -101,7 +109,7 @@ export function cardsAdmin(cards, baseUrl, qrFor) {
     </div>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>#</th><th>Token</th><th>Status</th><th>Tempat</th><th>Aktif</th><th>Aksi</th></tr></thead>
+        <thead><tr><th>#</th><th>Tipe</th><th>Status</th><th>Tempat</th><th>Aktif</th><th>Aksi</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>

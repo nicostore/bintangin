@@ -5,10 +5,14 @@ export function printBlankCards(cards, baseUrl, qrFor) {
   const items = cards.map((c) => {
     const url = `${baseUrl}/c/${c.token}`;
     const qr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(url)}`;
+    const tierTag = c.tier === "paid"
+      ? `<span class="tier-tag paid">NFC + QR</span>`
+      : `<span class="tier-tag free">QR</span>`;
     return `<div class="card-wrap">
       <div class="card">
         <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin <span class="brandsub">· aktivasi kartu</span></div>
         <span class="stamp">SCAN ME</span>
+        ${tierTag}
         <div class="qr"><img src="${qr}" alt="QR kartu"><i class="nw"></i><i class="ne"></i><i class="sw"></i><i class="se"></i></div>
         <div class="stars">
           <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
@@ -20,7 +24,6 @@ export function printBlankCards(cards, baseUrl, qrFor) {
         <div class="title">Kartu belum aktif</div>
         <div class="subtitle">Scan buat aktivasi ke tempat kamu</div>
         <div class="cta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg> Bintangin, yuk</div>
-        <div class="code">#${c.token.toUpperCase()}</div>
         <div class="foot">review google yang jujur</div>
       </div>
     </div>`;
@@ -49,6 +52,9 @@ export function printBlankCards(cards, baseUrl, qrFor) {
   .brand .mark svg{width:3.6mm;height:3.6mm}
   .brandsub{font-weight:600;font-size:2.4mm;color:#A49B8E;letter-spacing:.2mm}
   .stamp{position:absolute;top:7.5mm;right:0;background:#E8A33D;color:#fff;font-weight:800;font-size:2.7mm;letter-spacing:.7mm;padding:1.7mm 6mm 1.7mm 3.5mm;border-radius:0 0 0 2mm}
+  .tier-tag{position:absolute;bottom:10mm;left:0;font-weight:800;font-size:2.5mm;letter-spacing:.5mm;padding:1.8mm 5mm;color:#fff;border-radius:0 2mm 0 0}
+  .tier-tag.free{background:#6B6359}
+  .tier-tag.paid{background:#107C41}
   .qr{position:relative;width:47mm;height:47mm;background:#fff;border-radius:2.5mm;padding:1.6mm;margin-top:4.5mm;box-shadow:0 1.2mm 3.5mm rgba(28,25,23,.10)}
   .qr img{width:100%;height:100%;display:block;border-radius:1mm}
   .qr i{position:absolute;width:4.2mm;height:4.2mm;border:.55mm solid #107C41}

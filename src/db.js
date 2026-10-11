@@ -22,6 +22,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS cards (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     token        TEXT    NOT NULL UNIQUE,
+    tier         TEXT    NOT NULL DEFAULT 'free',   -- free = QR only | paid = QR + NFC (Rp50rb)
     status       TEXT    NOT NULL DEFAULT 'blank',   -- blank | activated
     place_id     TEXT,
     place_name   TEXT,
@@ -30,6 +31,15 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_cards_status ON cards(status);
 `);
+
+// migrasi idempotent: tambah kolom tier kalau belum ada
+{
+  const cols = db.prepare("PRAGMA table_info(cards)").all().map((c) => c.name);
+  if (!cols.includes("tier")) {
+    db.exec("ALTER TABLE cards ADD COLUMN tier TEXT NOT NULL DEFAULT 'free'");
+    console.log("  migrasi: kolom tier ditambahkan");
+  }
+}
 
 // token unik kartu (16 char hex)
 export function cardToken() {
