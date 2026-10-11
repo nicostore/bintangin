@@ -1,0 +1,18 @@
+{
+  "name": "bintangin",
+  "version": "0.1.0",
+  "description": "QR review funnel ke Google Maps untuk UMKM Indonesia — non-gating, legal, halal.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/migrate.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

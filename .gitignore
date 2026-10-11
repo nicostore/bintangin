@@ -1,0 +1,21 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Database (bakal dibuat runtime)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/.session-secret
+data/.env
+data/*.lock
+
+# Env & secrets
+.env
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
