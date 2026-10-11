@@ -142,7 +142,23 @@ function placeNameFromUrl(raw) {
   return decodeURIComponent(m[1].replace(/\+/g, " ")).trim();
 }
 
-app.post("/a/:token", (req, res) => {
+// Resolve link singkat Google Maps (maps.app.goo.gl / goo.gl / g.co) ke URL penuh,
+// lalu ambil place_id. Hanya host Google yang diizinkan (cegah SSRF).
+async function resolveMapsShortLink(url) {
+  try {
+    const u = new URL(url);
+    const allowed = /(^|\.)(goo\.gl|g\.co|google\.com|googleusercontent\.com)$/i.test(u.hostname);
+    if (!allowed) return null;
+    const r = await fetch(u.toString(), { redirect: "follow", signal: AbortSignal.timeout(6000) });
+    return r.url || null;
+  } catch {
+    return null;
+  }
+}
+
+app.post("/a/:token", async (req, res) => {
+  const ip = realIp(req);
+  if (rateLimited(ip)) return res.status(429).send("Terlalu banyak percobaan. Coba lagi beberapa menit.");
   const c = getCard(req.params.token);
   if (!c) return res.status(404).send("Kartu tidak dikenal.");
   if (c.status === "activated") return res.redirect(googleReviewUrlFor(c.place_id));
@@ -151,15 +167,32 @@ app.post("/a/:token", (req, res) => {
   let placeId = (body.place_id || "").toString().trim();
   let placeName = (body.place_name || "").toString().trim();
   // Mode 2: tempel link Google Maps (tanpa API & tanpa saldo)
+  let mapsGiven = false;
   if (!placeId) {
     const mapsUrl = (body.maps_url || "").toString().trim();
-    const parsed = extractPlaceFromUrl(mapsUrl);
-    if (parsed) {
-      placeId = parsed.place_id;
-      placeName = placeName || placeNameFromUrl(mapsUrl) || placeId;
+    if (mapsUrl) {
+      mapsGiven = true;
+      const parsed = extractPlaceFromUrl(mapsUrl);
+      if (parsed) {
+        placeId = parsed.place_id;
+        placeName = placeName || placeNameFromUrl(mapsUrl) || placeId;
+      } else {
+        // coba resolve link singkat (Share → Copy link dari app Google Maps)
+        const resolved = await resolveMapsShortLink(mapsUrl);
+        if (resolved) {
+          const p2 = extractPlaceFromUrl(resolved);
+          if (p2) {
+            placeId = p2.place_id;
+            placeName = placeName || placeNameFromUrl(resolved) || placeId;
+          }
+        }
+      }
     }
   }
-  if (!placeId) return res.status(400).send("Pilih tempat dari daftar Google atau tempel link Maps.");
+  if (!placeId) {
+    if (mapsGiven) return res.status(400).send("Link Google Maps tidak dikenali. Pastikan pakai link dari Share → Copy link di app Google Maps.");
+    return res.status(400).send("Pilih tempat dari daftar Google atau tempel link Maps.");
+  }
   db.prepare("UPDATE cards SET status='activated', place_id=?, place_name=?, activated_at=datetime('now') WHERE id=?")
     .run(placeId, placeName, c.id);
   res.redirect(`${BASE_URL}/c/${c.token}`);
