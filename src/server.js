@@ -236,6 +236,13 @@ app.post("/app/venues/:id/delete", requireAuth, (req, res) => {
   res.redirect("/app");
 });
 
+// ---------- print card ----------
+app.get("/app/venues/:id/print", requireAuth, (req, res) => {
+  const v = db.prepare("SELECT * FROM venues WHERE id = ?").get(req.params.id);
+  if (!v) return res.status(404).send("Venue nggak ditemukan");
+  res.send(views.printCard(v, BASE_URL, qrImageUrl));
+});
+
 // ---------- download QR (proxy server-side biar download atribut jalan) ----------
 app.get("/app/venues/:id/qr", requireAuth, (req, res) => {
   const v = db.prepare("SELECT * FROM venues WHERE id = ?").get(req.params.id);

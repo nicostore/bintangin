@@ -172,7 +172,7 @@ export function dashboard({ rows, total, base, qrUrl, googleUrl }) {
     </div>
     <div class="qrwrap"><img src="${qrUrl(v)}" alt="QR ${v.name}"></div>
     <div class="qract">
-      <a class="qbtn primary" href="/app/venues/${v.id}/qr" download>Download QR</a>
+      <a class="qbtn primary" href="/app/venues/${v.id}/print">🖨️ Print Card</a>
       <a class="qbtn" href="/app/venues/${v.id}/edit">Edit</a>
       <form method="post" action="/app/venues/${v.id}/delete" onsubmit="return confirm('Hapus "${v.name}" beserta semua ratingnya?')" style="display:inline">
         <button class="qbtn danger" type="submit">Hapus</button>
@@ -306,6 +306,123 @@ export function editVenue(v) {
         <button class="save" type="submit">Simpan</button>
       </div>
     </form>
+  </div>
+</body></html>`;
+}
+
+// ---------- PRINT CARD (kartu meja 4x per A4, siap cetak) ----------
+export function printCard(v, baseUrl, qrUrl) {
+  const qr = qrUrl(v); // QR resolusi tinggi
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Print Card — ${v.name} · Bintangin</title>${FONT}
+<style>
+  @page { size: A4; margin: 8mm; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:#E4DFD5;color:#1C1917;-webkit-font-smoothing:antialiased}
+  .star-svg{width:3.6mm;height:3.6mm;display:block}
+
+  /* toolbar (tidak ikut print) */
+  .toolbar{max-width:196mm;margin:0 auto;padding:14px 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .toolbar .t{font-weight:800;font-size:1.05rem;margin-right:auto}
+  .toolbar .t small{display:block;font-weight:500;color:#6B6359;font-size:.78rem}
+  .tbtn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:11px;padding:11px 18px;font-weight:800;font-family:inherit;font-size:.9rem;cursor:pointer;text-decoration:none}
+  .tbtn.print{background:#107C41;color:#fff;box-shadow:0 4px 14px rgba(16,124,65,.3)}
+  .tbtn.ghost{background:#fff;border:1px solid #D8D0C2;color:#1C1917}
+  .tbtn:hover{filter:brightness(1.05)}
+  .hint{color:#8A8072;font-size:.78rem;margin-left:4px}
+
+  /* lembar A4 */
+  .sheet{width:196mm;margin:0 auto;background:#fff;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.12);padding:7mm 6mm;display:grid;grid-template-columns:repeat(2,91mm);justify-content:space-between;row-gap:7mm}
+  .card-wrap{position:relative}
+  /* garis potong (cut marks) */
+  .tick{position:absolute;width:4mm;height:4mm;border:0.35mm solid #C9C1B2;z-index:5}
+  .tick.tl{top:-1.4mm;left:-1.4mm;border-right:0;border-bottom:0}
+  .tick.tr{top:-1.4mm;right:-1.4mm;border-left:0;border-bottom:0}
+  .tick.bl{bottom:-1.4mm;left:-1.4mm;border-right:0;border-top:0}
+  .tick.br{bottom:-1.4mm;right:-1.4mm;border-left:0;border-top:0}
+
+  /* kartu */
+  .card{position:relative;width:91mm;height:134mm;overflow:hidden;background:#FFFDF8;border:0.4mm solid #E5DED2;border-radius:3mm;display:flex;flex-direction:column;align-items:center;padding:8mm 5mm 5mm;text-align:center}
+  .card::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 65% at 100% 0%, #E3F1E8 0%, transparent 58%),radial-gradient(110% 55% at 0% 100%, #FBF0DC 0%, transparent 60%)}
+  .card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:2.4mm;background:linear-gradient(180deg,#107C41,#0B5C30)}
+  .card>*{position:relative}
+
+  .brand{display:flex;align-items:center;gap:1.8mm;font-weight:800;font-size:3.8mm;letter-spacing:0.5mm;color:#107C41;text-transform:uppercase}
+  .brand .mark{width:6.4mm;height:6.4mm;border-radius:1.8mm;background:#107C41;color:#fff;display:flex;align-items:center;justify-content:center}
+  .brand .mark svg{width:3.6mm;height:3.6mm}
+  .brand small{font-weight:600;color:#A49B8E;font-size:2.4mm;letter-spacing:.2mm}
+
+  .stamp{position:absolute;top:7.5mm;right:0;background:#E8A33D;color:#fff;font-weight:800;font-size:2.7mm;letter-spacing:.7mm;padding:1.7mm 6mm 1.7mm 3.5mm;border-radius:0 0 0 2mm;box-shadow:0 1mm 2.5mm rgba(232,163,61,.35)}
+
+  .qr{position:relative;width:47mm;height:47mm;background:#fff;border-radius:2.5mm;padding:1.6mm;margin-top:4.5mm;box-shadow:0 1.2mm 3.5mm rgba(28,25,23,.10)}
+  .qr img{width:100%;height:100%;display:block;border-radius:1mm}
+  .qr i{position:absolute;width:4.2mm;height:4.2mm;border:0.55mm solid #107C41}
+  .qr i.nw{top:2.4mm;left:2.4mm;border-right:0;border-bottom:0;border-radius:1mm 0 0 0}
+  .qr i.ne{top:2.4mm;right:2.4mm;border-left:0;border-bottom:0;border-radius:0 1mm 0 0}
+  .qr i.sw{bottom:2.4mm;left:2.4mm;border-right:0;border-top:0;border-radius:0 0 0 1mm}
+  .qr i.se{bottom:2.4mm;right:2.4mm;border-left:0;border-top:0;border-radius:0 0 1mm 0}
+
+  .stars{display:flex;gap:1.4mm;color:#E8A33D;margin-top:3.2mm}
+  .name{font-weight:800;font-size:6mm;letter-spacing:-.12mm;color:#1C1917;line-height:1.12;margin-top:2mm;max-width:76mm;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tag{color:#6B6359;font-size:3mm;margin-top:1.6mm}
+  .arrow-down{color:#B5AC9E;margin-top:1.4mm}
+  .arrow-down svg{width:4mm;height:4mm}
+
+  .cta{margin-top:auto;background:#107C41;color:#fff;font-weight:800;font-size:4.2mm;padding:2.8mm 9mm;border-radius:10mm;display:inline-flex;align-items:center;gap:1.8mm;box-shadow:0 1.6mm 4.5mm rgba(16,124,65,.3)}
+  .cta svg{width:4mm;height:4mm}
+  .foot{margin-top:2.6mm;color:#A49B8E;font-size:2.3mm;letter-spacing:.25mm;text-transform:uppercase;font-weight:600}
+
+  @media print{
+    body{background:#fff}
+    .toolbar{display:none!important}
+    .sheet{box-shadow:none;border-radius:0;padding:0;width:100%;margin:0}
+    .card-wrap{break-inside:avoid}
+  }
+  @media (max-width:400px){
+    .toolbar .hint{display:none}
+    .sheet{padding:4mm}
+  }
+  /* Mobile: biar halaman print card tetap rapi dibuka dari HP (zoom-out sheet A4) */
+  @media (max-width:760px){
+    .sheet{transform:scale(.42);transform-origin:top left;width:196mm;margin:0 auto}
+    .toolbar{max-width:100%;padding:10px 14px}
+  }
+</style></head>
+<body>
+  <div class="toolbar">
+    <div class="t">Print Card <small>${v.name} · 4 kartu per lembar A4 · siap gunting</small></div>
+    <a class="tbtn ghost" href="/app">← Dashboard</a>
+    <a class="tbtn ghost" href="/app/venues/${v.id}/qr">Download QR PNG</a>
+    <button class="tbtn print" onclick="window.print()">🖨️ Print</button>
+    <span class="hint">atau Ctrl/Cmd + P</span>
+  </div>
+
+  <div class="sheet">
+    ${[1,2,3,4].map(() => `
+    <div class="card-wrap">
+      <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+      <div class="card">
+        <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg></span> Bintangin <small>· review Google</small></div>
+        <span class="stamp">SCAN ME</span>
+        <div class="qr">
+          <img src="${qr}" alt="QR ${v.name}">
+          <i class="nw"></i><i class="ne"></i><i class="sw"></i><i class="se"></i>
+        </div>
+        <div class="stars">
+          <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+          <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+          <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+          <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+          <svg class="star-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg>
+        </div>
+        <div class="name">${v.name}</div>
+        <div class="tag">Scan · Kasih bintang · Review Google</div>
+        <div class="arrow-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></div>
+        <div class="cta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.1 5.6.7-4.1 3.9 1 5.6L12 14.6 7.1 17.3l1-5.6L4 7.8l5.6-.7L12 2z"/></svg> Bintangin, yuk</div>
+        <div class="foot">review google yang jujur · ${baseUrl.replace(/^https?:\/\//, "")}</div>
+      </div>
+    </div>`).join("")}
   </div>
 </body></html>`;
 }
